@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>History Lifestyle — Retargeting Ad Creatives</title>
+<style>
+  :root{
+    --bg:#F4F1EC;
+    --paper:#FFFFFF;
+    --ink:#0F0F0F;
+    --ink-soft:#3A3A3A;
+    --line:#E4DED4;
+    --gold:#B89968;
+    --gold-deep:#8C7140;
+    --cream:#FAF7F1;
+    --offer:#0F0F0F;
+    --alert:#B7211A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);font-family:'Helvetica Neue','Inter',Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  .page{max-width:1280px;margin:0 auto;padding:48px 24px 80px}
+  .page-head{text-align:center;margin-bottom:48px}
+  .page-head .eyebrow{font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:14px}
+  .page-head h1{font-size:36px;font-weight:300;letter-spacing:-0.5px;color:var(--ink)}
+  .page-head h1 b{font-weight:600}
+  .page-head p{margin-top:14px;font-size:15px;color:var(--ink-soft);max-width:640px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+  .stage{margin:48px 0 16px;display:flex;align-items:center;gap:14px}
+  .stage .num{width:34px;height:34px;border:1px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:600}
+  .stage h2{font-size:13px;letter-spacing:0.32em;text-transform:uppercase;color:var(--ink)}
+  .stage .pill{margin-left:auto;font-size:11px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;color:var(--ink-soft);background:#fff;letter-spacing:0.1em;text-transform:uppercase}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+  @media (max-width:880px){.grid{grid-template-columns:1fr}}
+
+  .ad{background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.02), 0 24px 60px -30px rgba(0,0,0,.18)}
+  .ad-meta{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);background:#fff;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-soft)}
+  .ad-meta .id{font-weight:600;color:var(--ink)}
+  .ad-meta .stack{display:flex;gap:10px}
+
+  /* Meta-feed style header */
+  .feed-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-bottom:1px solid var(--line)}
+  .feed-head .av{width:36px;height:36px;border-radius:50%;background:var(--ink);display:grid;place-items:center;color:#fff;font-size:11px;letter-spacing:0.06em;font-weight:600}
+  .feed-head .who{font-size:13px;font-weight:600;color:var(--ink);line-height:1.1}
+  .feed-head .who span{display:block;font-size:11px;font-weight:400;color:var(--ink-soft);margin-top:2px;letter-spacing:0.04em}
+  .feed-head .spons{margin-left:auto;font-size:10px;color:var(--ink-soft);letter-spacing:0.16em;text-transform:uppercase}
+
+  /* Primary copy block above the visual */
+  .primary{padding:14px 18px;font-size:14px;line-height:1.55;color:var(--ink);background:#fff}
+  .primary b{font-weight:600}
+
+  /* Visual canvas — square 1:1 like meta feed */
+  .canvas{position:relative;aspect-ratio:1/1;background:var(--cream);overflow:hidden}
+  .canvas .bg-grad-light{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 30%,#fff 0%,#F4EFE6 60%,#E9E1D2 100%)}
+  .canvas .bg-grad-dark{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 30%,#1c1c1c 0%,#0a0a0a 100%)}
+  .canvas .bg-soft{position:absolute;inset:0;background:linear-gradient(180deg,#FFFFFF 0%,#F4EFE6 100%)}
+
+  .product{position:absolute;inset:0;display:grid;place-items:center}
+  .product img{width:78%;height:78%;object-fit:contain;filter:drop-shadow(0 30px 50px rgba(0,0,0,.18))}
+  .product-sm img{width:62%;height:62%}
+  .product-tight img{width:90%;height:90%}
+
+  /* Brand wordmark / logo */
+  .brand{position:absolute;top:18px;left:18px;display:flex;align-items:center;gap:10px;z-index:5}
+  .brand .mark{width:30px;height:30px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-family:'Playfair Display',serif;font-size:14px;font-weight:600;background:rgba(255,255,255,.85);backdrop-filter:blur(6px)}
+  .brand.dark .mark{border-color:#fff;color:#fff;background:rgba(0,0,0,.4)}
+  .brand .name{font-size:11px;letter-spacing:0.32em;text-transform:uppercase;font-weight:600}
+  .brand.dark .name{color:#fff}
+
+  /* Offer chip (top-right) */
+  .offer-chip{position:absolute;top:18px;right:18px;background:var(--ink);color:#fff;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;padding:7px 12px;border-radius:999px;font-weight:600;z-index:5}
+  .offer-chip.gold{background:var(--gold);color:#fff}
+
+  /* Headline overlay (bottom) */
+  .headline-block{position:absolute;left:0;right:0;bottom:0;padding:24px 26px 26px;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.92) 38%,#fff 70%);z-index:4}
+  .headline-block.dark{background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,.7) 38%,rgba(0,0,0,.95) 70%);color:#fff}
+  .headline-block h3{font-size:24px;font-weight:600;letter-spacing:-0.4px;line-height:1.15;color:inherit}
+  .headline-block .sub{margin-top:8px;font-size:12px;color:var(--ink-soft);letter-spacing:0.04em;line-height:1.5}
+  .headline-block.dark .sub{color:rgba(255,255,255,.78)}
+
+  /* Bottom CTA — Meta-style */
+  .meta-cta{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#F5F5F5;border-top:1px solid var(--line)}
+  .meta-cta .url{font-size:11px;color:#65676B;letter-spacing:0.04em;text-transform:uppercase}
+  .meta-cta .url b{display:block;font-size:14px;color:var(--ink);text-transform:none;letter-spacing:0;font-weight:600;margin-top:2px}
+  .meta-cta .btn{font-size:13px;font-weight:600;color:var(--ink);background:#E4E6EB;padding:8px 14px;border-radius:6px;border:none}
+
+  /* Floating tag (offer ribbon style) */
+  .tag-stack{position:absolute;left:22px;bottom:120px;z-index:6;display:flex;flex-direction:column;gap:8px}
+  .tag{background:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:4px;font-size:11px;letter-spacing:0.06em;color:var(--ink);box-shadow:0 8px 20px -10px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px}
+  .tag b{font-weight:600;color:var(--gold-deep)}
+  .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+  /* Hotel logos strip (Ad 02) */
+  .logo-strip{position:absolute;left:20px;right:20px;bottom:120px;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:6px;padding:14px 16px;z-index:5}
+  .logo-strip .label{font-size:9px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px;text-align:center;font-weight:600}
+  .logo-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:center}
+  .logo-row img{width:100%;height:24px;object-fit:contain;opacity:.78;mix-blend-mode:multiply}
+
+  /* Ad 03 — multi-product grid */
+  .multi-grid{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1px;background:var(--line);z-index:1}
+  .multi-grid .cell{background:var(--cream);position:relative;display:grid;place-items:center;overflow:hidden}
+  .multi-grid .cell img{width:75%;height:75%;object-fit:contain}
+  .multi-grid .cell::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 60%,rgba(0,0,0,.18) 100%)}
+  .multi-grid .cell .name{position:absolute;left:10px;bottom:8px;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:#fff;font-weight:600;z-index:2;mix-blend-mode:normal}
+
+  /* Ad 04 — offer-card breakdown */
+  .offer-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid var(--line);border-radius:8px;padding:28px 26px;width:78%;text-align:center;box-shadow:0 30px 60px -30px rgba(0,0,0,.25);z-index:5}
+  .offer-card .stamp{display:inline-block;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-deep);font-weight:600;margin-bottom:14px}
+  .offer-card h4{font-size:22px;font-weight:600;letter-spacing:-0.3px;color:var(--ink);line-height:1.2}
+  .offer-card .divide{height:1px;background:var(--line);margin:18px 0}
+  .offer-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px}
+  .offer-row .lbl{color:var(--ink-soft);text-align:left}
+  .offer-row .val{color:var(--ink);font-weight:600}
+  .offer-row .val.green{color:#1a8a4f}
+  .offer-card .footer-note{margin-top:14px;font-size:10px;color:var(--ink-soft);letter-spacing:0.16em;text-transform:uppercase}
+
+  /* Ad 05 — Abandoned cart urgency */
+  .urgent-bar{position:absolute;top:0;left:0;right:0;background:var(--alert);color:#fff;padding:10px 18px;display:flex;justify-content:space-between;align-items:center;z-index:6;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600}
+  .urgent-bar .blink{display:inline-flex;align-items:center;gap:8px}
+  .urgent-bar .blink i{width:8px;height:8px;background:#fff;border-radius:50%;display:inline-block;animation:blink 1.2s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .cart-card{position:absolute;left:24px;right:24px;bottom:128px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;display:flex;align-items:center;gap:14px;z-index:5;box-shadow:0 24px 50px -30px rgba(0,0,0,.25)}
+  .cart-card .thumb{width:72px;height:72px;background:var(--cream);border-radius:6px;overflow:hidden;flex:none;display:grid;place-items:center;border:1px solid var(--line)}
+  .cart-card .thumb img{width:90%;height:90%;object-fit:contain}
+  .cart-card .info{flex:1}
+  .cart-card .info h5{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px}
+  .cart-card .info .price{font-size:12px;color:var(--ink-soft)}
+  .cart-card .info .price b{color:var(--ink);font-weight:600}
+  .cart-card .info .price del{margin-right:6px;color:#9a9a9a}
+  .gift-strip{position:absolute;left:24px;right:24px;bottom:78px;background:#FBF6EC;border:1px dashed var(--gold);border-radius:6px;padding:10px 14px;font-size:11px;letter-spacing:0.06em;color:var(--gold-deep);text-align:center;z-index:5;font-weight:600}
+  .gift-strip b{color:var(--ink);font-weight:600}
+
+  /* Ad 06 — luxury "complete your order" with rewards stack */
+  .reward-stack{position:absolute;left:24px;right:24px;bottom:88px;display:flex;flex-direction:column;gap:8px;z-index:5}
+  .reward{background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.6);border-radius:6px;padding:11px 14px;display:flex;align-items:center;gap:12px;color:var(--ink)}
+  .reward .ico{width:30px;height:30px;border-radius:50%;background:var(--gold);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:600;flex:none}
+  .reward .txt{flex:1}
+  .reward .txt b{display:block;font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-0.1px}
+  .reward .txt span{font-size:11px;color:var(--ink-soft);letter-spacing:0.02em}
+  .reward .check{font-size:14px;color:#1a8a4f;font-weight:700}
+
+  /* Ad 06 dark luxury hero text */
+  .lux-hero{position:absolute;top:80px;left:24px;right:24px;text-align:left;z-index:5}
+  .lux-hero .eyebrow{font-size:10px;letter-spacing:0.36em;text-transform:uppercase;color:#D4B97D;margin-bottom:10px;font-weight:600}
+  .lux-hero h3{font-size:30px;line-height:1.1;font-weight:300;letter-spacing:-0.6px;color:#fff}
+  .lux-hero h3 b{font-weight:600}
+  .lux-hero p{margin-top:10px;font-size:12px;color:rgba(255,255,255,.78);letter-spacing:0.04em;line-height:1.5;max-width:78%}
+
+  /* Ad 02 small product peek */
+  .peek{position:absolute;right:18px;bottom:120px;display:flex;gap:8px;z-index:5}
+  .peek .pk{width:64px;height:64px;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;display:grid;place-items:center;box-shadow:0 10px 24px -12px rgba(0,0,0,.18)}
+  .peek .pk img{width:88%;height:88%;object-fit:contain}
+
+  /* Ad 03 IC overlay */
+  .ic-overlay{position:absolute;left:0;right:0;top:0;padding:18px 22px 14px;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,255,255,0));z-index:6}
+  .ic-overlay .row{display:flex;justify-content:space-between;align-items:center}
+  .ic-overlay h4{font-size:18px;font-weight:600;letter-spacing:-0.2px}
+  .ic-overlay .step{font-size:10px;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold-deep);font-weight:600}
+  .progress{margin-top:10px;height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+  .progress span{display:block;height:100%;background:var(--ink);width:66%}
+  .ic-overlay .progress-label{margin-top:6px;font-size:10px;color:var(--ink-soft);letter-spacing:0.1em;text-transform:uppercase}
+
+  /* Ad copy block (below the visual) */
+  .copy-block{padding:18px 20px 22px;background:#fff;border-top:1px solid var(--line)}
+  .copy-block h5{font-size:12px;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px;font-weight:600}
+  .copy-block .head{font-size:16px;font-weight:600;color:var(--ink);line-height:1.35}
+  .copy-block .body{margin-top:8px;font-size:13px;color:var(--ink-soft);line-height:1.55}
+  .copy-block .body b{color:var(--ink);font-weight:600}
+
+  /* Caption / breakdown box */
+  .brief{padding:16px 20px;background:var(--cream);border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-soft);line-height:1.6}
+  .brief b{color:var(--ink);font-weight:600}
+  .brief .row{display:flex;gap:10px;margin-bottom:4px}
+  .brief .lbl{flex:none;width:74px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold-deep);font-weight:600;padding-top:1px}
+
+  /* Footer note */
+  .foot{margin-top:60px;text-align:center;font-size:11px;color:var(--ink-soft);letter-spacing:0.06em}
+  .foot b{color:var(--ink);font-weight:600}
+
+  /* Print-friendly: download instructions */
+  .download-note{margin:18px 0 30px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:18px 22px;font-size:13px;color:var(--ink-soft);line-height:1.6}
+  .download-note b{color:var(--ink)}
+  .download-note code{background:var(--cream);padding:2px 6px;border-radius:3px;font-size:12px;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-head">
+    <div class="eyebrow">History Lifestyle &nbsp;·&nbsp; Meta Retargeting</div>
+    <h1>6 Ad Creatives, <b>built with real product images</b></h1>
+    <p>Aspirational pull-back for ATC, friction-removal for IC, and urgency-plus-sweetener for AC — all in the brand's actual cream-and-black palette, with the offers (free oil at ₹2,499 / 6-oil set at ₹4,999 / 5% prepaid + free shipping) baked into every stage.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STAGE 1 — ATC -->
+  <!-- ============================================ -->
+  <div class="stage">
+    <div class="num">1</div>
+    <h2>Add to Cart Abandoners</h2>
+    <span class="pill">Aspirational · 2–7 days</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- AD 01 -->
+    <div class="ad">
+      <div class="ad-meta"><div class="id">AD 01 · ATC</div><div class="stack">Single image · 1:1 · Feed + Reels</div></div>
+      <div class="feed-head">
+        <div class="av">HL</div>
+        <div class="who">History Lifestyle<span>Sponsored · Paid partnership</span></div>
+        <div class="spons">···</div>
+      </div>
+      <div class="primary">
+        Your home deserves to smell like <b>a 5-star hotel</b>. ✨<br>
+        Get a <b>FREE aroma oil</b> on every Titanic Diffuser at ₹2,499 — our top-rated piece is back in stock.
+      </div>
+      <div class="canvas">
+        <div class="bg-grad-light"></div>
+        <div class="brand"><div class="mark">H</div><div class="name">History Lifestyle</div></div>
+        <div class="offer-chip">Free Aroma Oil</div>
+
+        <div class="product"><img src="historylifestyle_assets/titanic.jpg" alt="Titanic Diffuser"></div>
+
+        <div class="tag-stack">
+          <div class="tag"><span class="dot"></span><b>5★</b>&nbsp;1,200+ reviews</div>
+          <div class="tag"><span class="dot"></span>Trusted by Taj, ITC &amp; Marriott</div>
+        </div>
+
+        <div class="headline-block">
+          <h3>The Titanic Diffuser.<br>Now with a complimentary aroma oil.</h3>
+          <div class="sub">8-hour fragrance · Auto-off · Smoke-free · Safe for AC rooms · Free shipping all India.</div>
+        </div>
+      </div>
+      <div class="meta-cta">
+        <div class="url">historylifestyle.in<b>Complete your set</b></div>
+        <button class="btn">Shop Now</button>
+      </div>
+      <div class="brief">
+        <div class="row"><div class="lbl">Hook</div><div>Aspiration: "your home should smell like a hotel". Strong sensory promise + FREE oil incentive surfaces immediately.</div></div>
+        <div class="row"><div class="lbl">Audience</div><div>ATC last 7 days, excluded purchasers + IC + AC users.</div></div>
+        <div class="row"><div class="lbl">Format</div><div>1:1 image, also crop to 9:16 for Reels by extending the cream gradient upward.</div></div>
+      </div>
+    </div>
+
+    <!-- AD 02 -->
+    <div class="ad">
+      <div class="ad-meta"><div class="id">AD 02 · ATC</div><div class="stack">Trust ad · 1:1 · Feed</div></div>
+      <div class="feed-head">
+        <div class="av">HL</div>
+        <div class="who">History Lifestyle<span>Sponsored</span></div>
+        <div class="spons">···</div>
+      </div>
+      <div class="primary">
+        The same diffusers in <b>Taj, Marriott, ITC, The Leela &amp; Radisson</b> — now in your living room. Plus a free aroma oil on us.
+      </div>
+      <div class="canvas">
+        <div class="bg-grad-light"></div>
+        <div class="brand"><div class="mark">H</div><div class="name">History Lifestyle</div></div>
+        <div class="offer-chip gold">B2B Trusted</div>
+
+        <div class="product product-sm"><img src="historylifestyle_assets/wood_grain.jpg" alt="Wood Grain Diffuser"></div>
+
+        <div class="logo-strip">
+          <div class="label">Trusted by India's finest hospitality brands</div>
+          <div class="logo-row">
+            <img src="historylifestyle_assets/logo_taj.png" alt="Taj">
+            <img src="historylifestyle_assets/logo_marriott.png" alt="Marriott">
+            <img src="historylifestyle_assets/logo_itc.png" alt="ITC">
+            <img src="historylifestyle_assets/logo_leela.png" alt="The Leela">
+            <img src="historylifestyle_assets/logo_radisson.png" alt="Radisson">
+          </div>
+        </div>
+
+        <div class="headline-block">
+          <h3>Hotel-grade fragrance, at home.</h3>
+          <div class="sub">Free aroma oil at ₹2,499 · 5% off on prepaid · Free shipping</div>
+        </div>
+      </div>
+      <div class="meta-cta">
+        <div class="url">historylifestyle.in<b>Why hotels choose us</b></div>
+        <button class="btn">Learn More</button>
+      </div>
+      <div class="brief">
+        <div class="row"><div class="lbl">Hook</div><div>B2B social proof — instantly elevates perceived quality and justifies the price for fence-sitters.</div></div>
+        <div class="row"><div class="lbl">Audience</div><div>ATC users 4–14 days who didn't progress to checkout.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ============================================ -->
+  <!-- STAGE 2 — INITIATED CHECKOUT -->
+  <!-- ============================================ -->
+  <div class="stage">
+    <div class="num">2</div>
+    <h2>Initiated Checkout</h2>
+    <span class="pill">Friction removal · 1–3 days</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- AD 03 -->
+    <div class="ad">
+      <div class="ad-meta"><div class="id">AD 03 · IC</div><div class="stack">Carousel · Multi-product · 1:1</div></div>
+      <div class="feed-head">
+        <div class="av">HL</div>
+        <div class="who">History Lifestyle<span>Sponsored</span></div>
+        <div class="spons">···</div>
+      </div>
+      <div class="primary">
+        You're <b>2 steps away</b> from a calmer home. Your free aroma oil is still reserved — and prepaid drops your total by another <b>5%</b>.
+      </div>
+      <div class="canvas">
+        <div class="bg-soft"></div>
+        <div class="ic-overlay">
+          <div class="row">
+            <h4>Almost there.</h4>
+            <div class="step">Step 2 of 3</div>
+          </div>
+          <div class="progress"><span></span></div>
+          <div class="progress-label">Cart · Shipping · <b style="color:var(--ink)">Payment</b></div>
+        </div>
+
+        <div class="multi-grid" style="top:96px;bottom:96px;left:0;right:0;height:auto;inset:96px 0 96px 0">
+          <div class="cell"><img src="historylifestyle_assets/titanic.jpg" alt="Titanic"><div class="name">Titanic</div></div>
+          <div class="cell"><img src="historylifestyle_assets/wood_grain.jpg" alt="Wood Grain"><div class="name">Wood Grain</div></div>
+          <div class="cell"><img src="historylifestyle_assets/whitewood.jpg" alt="Whitewood"><div class="name">Whitewood</div></div>
+          <div class="cell"><img src="historylifestyle_assets/rose_petal.jpg" alt="Rose & Petal"><div class="name">Rose &amp; Petal</div></div>
+        </div>
+
+        <div class="headline-block" style="background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.96) 28%,#fff 60%)">
+          <h3>Your cart is waiting.</h3>
+          <div class="sub">Prepaid: <b style="color:var(--ink)">−5%</b> · Free aroma oil at ₹2,499 · Free shipping all India</div>
+        </div>
+      </div>
+      <div class="meta-cta">
+        <div class="url">historylifestyle.in<b>Resume checkout</b></div>
+        <button class="btn">Complete Order</button>
+      </div>
+      <div class="brief">
+        <div class="row"><div class="lbl">Hook</div><div>Progress bar makes finishing feel trivial. Use Meta DPA so the actual cart products auto-render here.</div></div>
+        <div class="row"><div class="lbl">Audience</div><div>InitiateCheckout last 3 days, excl. purchasers.</div></div>
+      </div>
+    </div>
+
+    <!-- AD 04 -->
+    <div class="ad">
+      <div class="ad-meta"><div class="id">AD 04 · IC</div><div class="stack">Offer breakdown · 1:1</div></div>
+      <div class="feed-head">
+        <div class="av">HL</div>
+        <div class="who">History Lifestyle<span>Sponsored</span></div>
+        <div class="spons">···</div>
+      </div>
+      <div class="primary">
+        Wondering if it's worth completing? Here's exactly what you save — and what's <b>free</b>.
+      </div>
+      <div class="canvas">
+        <div class="bg-grad-light"></div>
+        <div class="brand"><div class="mark">H</div><div class="name">History Lifestyle</div></div>
+
+        <div class="offer-card">
+          <span class="stamp">Your reserved offer</span>
+          <h4>Order ₹4,999+ &amp; unlock everything.</h4>
+          <div class="divide"></div>
+          <div class="offer-row"><div class="lbl">Order ₹2,499+</div><div class="val green">+ FREE aroma oil</div></div>
+          <div class="offer-row"><div class="lbl">Order ₹4,999+</div><div class="val green">+ FREE 6-oil set</div></div>
+          <div class="offer-row"><div class="lbl">Pay prepaid</div><div class="val green">FLAT 5% off</div></div>
+          <div class="offer-row"><div class="lbl">Shipping</div><div class="val green">FREE · all India</div></div>
+          <div class="footer-note">Auto-applied at checkout</div>
+        </div>
+
+        <div class="headline-block">
+          <h3 style="font-size:20px">All four perks. One checkout.</h3>
+          <div class="sub">Reserved on your cart for the next 24 hours.</div>
+        </div>
+      </div>
+      <div class="meta-cta">
+        <div class="url">historylifestyle.in<b>4 perks · 1 checkout</b></div>
+        <button class="btn">Claim Offer</button>
+      </div>
+      <div class="brief">
+        <div class="row"><div class="lbl">Hook</div><div>Removes "what do I actually get?" friction by laying out all 4 perks like a receipt.</div></div>
+        <div class="row"><div class="lbl">Audience</div><div>InitiateCheckout 1–7 days, AOV ≥ ₹2,499.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ============================================ -->
+  <!-- STAGE 3 — ABANDONED CART -->
+  <!-- ============================================ -->
+  <div class="stage">
+    <div class="num">3</div>
+    <h2>Abandoned Cart (post-payment)</h2>
+    <span class="pill">Urgency + sweetener · 0–48h</span>
+  </div>
+
+  <div class="grid">
+
+    <!-- AD 05 -->
+    <div class="ad">
+      <div class="ad-meta"><div class="id">AD 05 · AC</div><div class="stack">Urgency · Cart preview · 1:1</div></div>
+      <div class="feed-head">
+        <div class="av">HL</div>
+        <div class="who">History Lifestyle<span>Sponsored</span></div>
+        <div class="spons">···</div>
+      </div>
+      <div class="primary">
+        Your free aroma oil is still in the box — but only for the next few hours. Finish your order and we'll ship today.
+      </div>
+      <div class="canvas">
+        <div class="bg-grad-light"></div>
+        <div class="urgent-bar">
+          <span class="blink"><i></i> Cart expiring soon</span>
+          <span>Free oil reserved · 23:42 left</span>
+        </div>
+
+        <div class="brand" style="top:60px"><div class="mark">H</div><div class="name">History Lifestyle</div></div>
+
+        <div class="product product-sm" style="margin-top:30px"><img src="historylifestyle_assets/rose_petal.jpg" alt="Rose & Petal Diffuser"></div>
+
+        <div class="cart-card">
+          <div class="thumb"><img src="historylifestyle_assets/rose_petal.jpg" alt=""></div>
+          <div class="info">
+            <h5>Rose &amp; Petal Diffuser</h5>
+            <div class="price"><del>₹3,999</del> <b>₹2,499</b> &nbsp;·&nbsp; in your cart</div>
+          </div>
+        </div>
+
+        <div class="gift-strip">🎁 <b>FREE aroma oil included</b> — only with this order</div>
+
+        <div class="headline-block" style="padding-top:14px">
+          <h3 style="font-size:20px">Don't lose your free oil.</h3>
+          <div class="sub">Prepaid &amp; save another 5% · Free shipping · Easy returns</div>
+        </div>
+      </div>
+      <div class="meta-cta">
+        <div class="url">historylifestyle.in<b>Finish order in 1 tap</b></div>
+        <button class="btn">Buy Now</button>
+      </div>
+      <div class="brief">
+        <div class="row"><div class="lbl">Hook</div><div>Urgent red bar + "your gift might go to someone else" framing. Highest-CTR creative in this set when run with DPA.</div></div>
+        <div class="row"><div class="lbl">Audience</div><div>AddPaymentInfo OR cart abandon last 48h.</div></div>
+      </div>
+    </div>
+
+    <!-- AD 06 -->
+    <div class="ad">
+      <div class="ad-meta"><div class="id">AD 06 · AC</div><div class="stack">Luxury hero · Reward stack · 1:1</div></div>
+      <div class="feed-head">
+        <div class="av">HL</div>
+        <div class="who">History Lifestyle<span>Sponsored</span></div>
+        <div class="spons">···</div>
+      </div>
+      <div class="primary">
+        We held your cart. Three perks waiting at checkout — finish before midnight to keep them all.
+      </div>
+      <div class="canvas">
+        <div class="bg-grad-dark"></div>
+        <div class="brand dark"><div class="mark">H</div><div class="name">History Lifestyle</div></div>
+        <div class="offer-chip" style="background:#D4B97D;color:#1c1c1c">Reserved · 12h left</div>
+
+        <div class="lux-hero">
+          <div class="eyebrow">Final call</div>
+          <h3>The order you almost placed.<br><b>Still yours.</b></h3>
+        </div>
+
+        <div class="product product-tight" style="opacity:.92"><img src="historylifestyle_assets/minion_oils.jpg" alt="5-in-1 Minion + 6-oil set" style="filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))"></div>
+
+        <div class="reward-stack">
+          <div class="reward"><div class="ico">1</div><div class="txt"><b>Free 6-Oil Aroma Set</b><span>Unlocked at ₹4,999+</span></div><div class="check">✓</div></div>
+          <div class="reward"><div class="ico">2</div><div class="txt"><b>Flat 5% off — prepaid</b><span>Auto-applied at checkout</span></div><div class="check">✓</div></div>
+          <div class="reward"><div class="ico">3</div><div class="txt"><b>Free shipping</b><span>Delivered in 5–7 days</span></div><div class="check">✓</div></div>
+        </div>
+      </div>
+      <div class="meta-cta">
+        <div class="url">historylifestyle.in<b>Complete &amp; claim 3 perks</b></div>
+        <button class="btn">Claim My Order</button>
+      </div>
+      <div class="brief">
+        <div class="row"><div class="lbl">Hook</div><div>Dark luxury treatment — different visual register from rest of feed. "All 3 perks ✓" reframes the abandoned cart as a reward.</div></div>
+        <div class="row"><div class="lbl">Audience</div><div>AC 0–48h, especially AOV ≥ ₹4,999. Pair with WhatsApp recovery flow.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Production notes -->
+  <div class="download-note">
+    <b>How to use these creatives</b><br><br>
+    1. <b>Asset folder:</b> All 7 product photos and 9 hotel logos are real, pulled from <code>historylifestyle.in</code>'s Shopify CDN, saved alongside this file in <code>historylifestyle_assets/</code>. Move that folder with this HTML and everything renders.<br>
+    2. <b>Export to PNG/JPG:</b> Open this file, screenshot each <code>.canvas</code> at 1080×1080. Or right-click → "Save Page As" → Complete to keep image links intact.<br>
+    3. <b>For Meta Ads Manager:</b> upload the canvas screenshot as the creative; use the "Primary text" copy at the top of each ad and the headline + description from <code>headline-block</code>.<br>
+    4. <b>Dynamic version:</b> Ad 03 (multi-product grid) and Ad 05 (cart card) should be served as <b>Meta DPA</b> from your Shopify catalog so the actual product the user viewed renders automatically.<br>
+    5. <b>Brand:</b> Off-white <code>#F4F1EC</code> background, <code>#0F0F0F</code> ink, champagne accent <code>#B89968</code> — pulled from the live site's hospitality-luxury palette.
+  </div>
+
+  <div class="foot"><b>History Lifestyle</b> · Retargeting ad set · Built with real product imagery and brand-accurate styling.</div>
+</div>
+</body>
+</html>

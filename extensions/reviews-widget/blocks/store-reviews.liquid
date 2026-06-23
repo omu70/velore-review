@@ -1,0 +1,73 @@
+{% comment %}
+  ============================================================
+  Store Reviews Widget — for homepage, footer, "About" page
+  File: /extensions/reviews-widget/blocks/store-reviews.liquid
+  Placement: anywhere you want to show store-wide reviews.
+  ============================================================
+{% endcomment %}
+
+{%- assign shop_domain = shop.permanent_domain -%}
+{%- assign api_base    = block.settings.api_base | default: 'https://reviews-app-shopify.vercel.app' -%}
+{%- assign heading     = block.settings.heading  | default: 'What our customers say' -%}
+
+<section
+  class="evo-rw evo-rw--store"
+  data-evo-review-widget
+  data-shop="{{ shop_domain }}"
+  data-store="true"
+  data-api="{{ api_base }}"
+  data-page="1"
+  data-limit="{{ block.settings.limit | default: 8 }}"
+>
+  <header class="evo-rw__header">
+    <div class="evo-rw__summary">
+      <div class="evo-rw__avg" data-evo-rw-avg>0.0</div>
+      <div class="evo-rw__sumright">
+        <div class="evo-rw__stars" data-evo-rw-stars></div>
+        <div class="evo-rw__total" data-evo-rw-total>0 reviews</div>
+      </div>
+    </div>
+    <div class="evo-rw__heading">{{ heading }}</div>
+  </header>
+  <hr class="evo-rw__divider"/>
+  <div class="evo-rw__grid" data-evo-rw-grid></div>
+  <nav class="evo-rw__pager" data-evo-rw-pager></nav>
+</section>
+
+<script src="{{ 'app-embed.js' | asset_url }}" defer></script>
+<link rel="stylesheet" href="{{ 'app-embed.css' | asset_url }}">
+
+<style>
+  .evo-rw--store .evo-rw__header{ flex-direction:column; align-items:flex-start; gap:8px; }
+  .evo-rw__heading{ font-size:24px; font-weight:700; color:#111827; }
+</style>
+
+{% schema %}
+{
+  "name": "Store Reviews",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "api_base",
+      "label": "App API URL",
+      "default": "https://reviews-app-shopify.vercel.app"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section heading",
+      "default": "What our customers say"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Reviews per page",
+      "min": 4,
+      "max": 24,
+      "step": 4,
+      "default": 8
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,11 @@
+api_version = "2024-10"
+
+[[extensions]]
+name = "Reviews Widget"
+handle = "reviews-widget"
+type  = "theme"
+
+  [extensions.capabilities]
+  network_access  = true
+  block_progress  = false
+  api_access      = false

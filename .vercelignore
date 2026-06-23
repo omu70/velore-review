@@ -1,0 +1,3 @@
+# Legacy folder — superseded by the Vite + @vercel/remix build.
+# Prevents Vercel from treating /api/index.js as a stray serverless function.
+api/

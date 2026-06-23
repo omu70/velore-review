@@ -1,0 +1,42 @@
+# --- dependencies ---
+node_modules/
+
+# --- build output ---
+/build
+/public/build
+.cache
+.output
+.vercel
+.shopify
+dist/
+
+# --- secrets / env ---
+.env
+.env.*
+!.env.example
+
+# --- os / editor ---
+.DS_Store
+*.log
+
+# --- marketing assets in this working folder (don't ship to the app repo) ---
+*.png
+*.jpg
+*.svg
+*.pdf
+*.docx
+HistoryLifestyle_*
+dizigroww_*
+historylifestyle_assets/
+carousel_*
+d2c_carousel_*
+v3_carousel_*
+custom_ad_*
+three_ad_*
+single_ad_*
+ph_*
+HL_*
+cro_ad_*
+final_ad.png
+uae_web_dev_ad.png
+evolabs-integrations-handoff-*.md
