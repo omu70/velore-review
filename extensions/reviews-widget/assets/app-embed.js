@@ -61,7 +61,7 @@
         '<span class="evo-sb__star"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2.5l2.95 6.4 7.05.7-5.3 4.85 1.55 6.95L12 17.9l-6.25 3.5L7.3 14.45 2 9.6l7.05-.7L12 2.5z" fill="#FFC107"/></svg></span>' +
         '<span class="evo-sb__avg" data-evo-avg>—</span>' +
         '<span class="evo-sb__divider">|</span>' +
-        '<span class="evo-sb__verified"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 1.5l2.6 2.1 3.3-.5.7 3.3 2.9 1.7-1.4 3.05 1.4 3.05-2.9 1.7-.7 3.3-3.3-.5L12 22.5l-2.6-2.1-3.3.5-.7-3.3L2.5 15.9l1.4-3.05L2.5 9.8l2.9-1.7.7-3.3 3.3.5L12 1.5z" fill="#1877F2"/><path d="M9.55 14.7l-2.3-2.3 1.4-1.4 1 1 4.4-4.4 1.4 1.4-5.9 5.7z" fill="#fff"/></svg></span>' +
+        '<span class="evo-sb__verified"><svg viewBox="0 0 18 18" width="18" height="18"><polygon fill="#005eff" points="9,16 7.1,16.9 5.8,15.2 3.7,15.1 3.4,13 1.5,12 2.2,9.9 1.1,8.2 2.6,6.7 2.4,4.6 4.5,4 5.3,2 7.4,2.4 9,1.1 10.7,2.4 12.7,2 13.6,4 15.6,4.6 15.5,6.7 17,8.2 15.9,9.9 16.5,12 14.7,13 14.3,15.1 12.2,15.2 10.9,16.9"/><path d="M5.8 9.3l2.1 2.1 4.3-4.7" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
         '<span class="evo-sb__count" data-evo-count>(0 Reviews)</span>' +
       '</div>' +
       '<div class="evo-sb__viewers">' +
@@ -194,7 +194,7 @@
     }
     function esc(s) { return String(s || "").replace(/[&<>"']/g, function (c) { return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); }
     function verified() {
-      return '<span class="evo-rw__verified"><svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5-1.4 1.4L9 19l11-11-1.4-1.4z" fill="#374151"/></svg>Verified purchase</span>';
+      return '<span class="evo-rw__verified"><svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5-1.4 1.4L9 19l11-11-1.4-1.4z" fill="#005eff"/></svg>Verified purchase</span>';
     }
     function imagesHTML(arr) {
       if (!arr || !arr.length) return "";
@@ -442,9 +442,9 @@
       '<span class="evo-card-badge__avg">' + avg + '</span>' +
       '<span class="evo-card-badge__divider">|</span>' +
       '<span class="evo-card-badge__verified" aria-hidden="true">' +
-        '<svg viewBox="0 0 24 24" width="12" height="12">' +
-          '<path d="M12 1.5l2.6 2.1 3.3-.5.7 3.3 2.9 1.7-1.4 3.05 1.4 3.05-2.9 1.7-.7 3.3-3.3-.5L12 22.5l-2.6-2.1-3.3.5-.7-3.3L2.5 15.9l1.4-3.05L2.5 9.8l2.9-1.7.7-3.3 3.3.5L12 1.5z" fill="#1877F2"/>' +
-          '<path d="M9.55 14.7l-2.3-2.3 1.4-1.4 1 1 4.4-4.4 1.4 1.4-5.9 5.7z" fill="#fff"/>' +
+        '<svg viewBox="0 0 18 18" width="12" height="12">' +
+          '<polygon fill="#005eff" points="9,16 7.1,16.9 5.8,15.2 3.7,15.1 3.4,13 1.5,12 2.2,9.9 1.1,8.2 2.6,6.7 2.4,4.6 4.5,4 5.3,2 7.4,2.4 9,1.1 10.7,2.4 12.7,2 13.6,4 15.6,4.6 15.5,6.7 17,8.2 15.9,9.9 16.5,12 14.7,13 14.3,15.1 12.2,15.2 10.9,16.9"/>' +
+          '<path d="M5.8 9.3l2.1 2.1 4.3-4.7" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
         '</svg>' +
       '</span>' +
       '<span class="evo-card-badge__count">(' + fmtCount(count) + ' Reviews)</span>';
