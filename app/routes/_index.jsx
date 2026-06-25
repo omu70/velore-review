@@ -34,6 +34,14 @@ function initials(name) {
   return ((a + b).toUpperCase() || "AN").slice(0, 2);
 }
 
+// The reviews table has a foreign key to shops(shop_domain); make sure the
+// shop row exists before inserting reviews (no OAuth creates it anymore).
+async function ensureShop(shop) {
+  await supabaseAdmin
+    .from("shops")
+    .upsert({ shop_domain: shop }, { onConflict: "shop_domain", ignoreDuplicates: true });
+}
+
 // Minimal, forgiving CSV parser (handles quotes + commas + newlines).
 function parseCSV(text) {
   const rows = [];
@@ -112,6 +120,7 @@ export const action = async ({ request }) => {
     let rating = parseInt(String(form.get("rating") || "5"), 10);
     rating = Math.max(1, Math.min(5, rating || 5));
     if (author && content) {
+      await ensureShop(shop);
       await supabaseAdmin.from("reviews").insert({
         shop_domain: shop, author_name: author, author_initials: initials(author),
         rating, content, status: "approved", product_handle: handle, source: "manual", is_verified: true,
@@ -152,6 +161,7 @@ export const action = async ({ request }) => {
     }
     if (!recs.length) return json({ msg: "No valid rows — need at least 'author' and 'content' columns.", ok: false });
 
+    await ensureShop(shop);
     let inserted = 0, errMsg = null;
     for (let i = 0; i < recs.length; i += 200) {
       const { error } = await supabaseAdmin.from("reviews").insert(recs.slice(i, i + 200));
