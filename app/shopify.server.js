@@ -20,6 +20,9 @@ const shopify = shopifyApp({
   sessionStorage: new SupabaseSessionStorage(),
   distribution: AppDistribution.SingleMerchant,
   isEmbeddedApp: true,
+  future: {
+    unstable_newEmbeddedAuthStrategy: true,
+  },
 });
 
 export default shopify;
