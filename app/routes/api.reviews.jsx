@@ -1,13 +1,19 @@
 // =============================================================
-// Public storefront API for reviews
-// File location:  /app/routes/api.reviews.jsx
-//
-// GET  /api/reviews?shop=<domain>&productId=<id>&page=1&limit=12
-// POST /api/reviews   (JSON body)
-// OPTIONS — CORS preflight
+// Public storefront API for reviews — serves a BAKED-IN dataset
+// (app/seed-reviews.js). No external database, no env vars.
+// GET  /api/reviews?shop=<domain>&productHandle=<handle>&page=1&limit=12
+// GET  /api/reviews?shop=<domain>&store=true
+// POST /api/reviews   (accepted, not persisted in this build)
 // =============================================================
 import { json } from "@remix-run/node";
-import { supabaseAdmin, corsHeaders } from "../utils/supabase.server";
+import { SEED_REVIEWS } from "../seed-reviews";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Shopify-Shop-Domain",
+  "Access-Control-Max-Age": "86400",
+};
 
 const respond = (body, init = {}) =>
   json(body, {
@@ -15,143 +21,17 @@ const respond = (body, init = {}) =>
     headers: { ...corsHeaders, "Content-Type": "application/json", ...(init.headers || {}) },
   });
 
-// ---------- CORS preflight ----------
 export const action = async ({ request }) => {
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
-
-  if (request.method !== "POST") {
-    return respond({ error: "Method not allowed" }, { status: 405 });
-  }
-
-  const contentType = request.headers.get("content-type") || "";
-  let body = {};
-  let uploadedImageUrls = [];
-
-  // ---- Multipart (with photos) ----
-  if (contentType.includes("multipart/form-data")) {
-    let form;
-    try {
-      form = await request.formData();
-    } catch {
-      return respond({ error: "Invalid form data" }, { status: 400 });
-    }
-
-    body = {
-      shop_domain:     form.get("shop_domain"),
-      product_id:      form.get("product_id"),
-      product_handle:  form.get("product_handle"),
-      author_name:     form.get("author_name"),
-      author_location: form.get("author_location"),
-      rating:          form.get("rating"),
-      content:         form.get("content"),
-      is_verified:     form.get("is_verified") === "true",
-    };
-
-    // Upload each photo to Supabase Storage
-    const photos = form.getAll("photos");
-    for (const file of photos) {
-      if (typeof file === "string" || !file || !file.size) continue;
-      if (file.size > 5 * 1024 * 1024) continue; // skip >5MB
-      const safeName = (file.name || "img").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
-      const path = `${body.shop_domain || "unknown"}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
-
-      try {
-        const arrayBuf = await file.arrayBuffer();
-        const { data, error } = await supabaseAdmin.storage
-          .from("review-images")
-          .upload(path, arrayBuf, { contentType: file.type || "image/jpeg", upsert: false });
-        if (!error && data) {
-          const { data: pub } = supabaseAdmin.storage.from("review-images").getPublicUrl(data.path);
-          if (pub?.publicUrl) uploadedImageUrls.push(pub.publicUrl);
-        } else if (error) {
-          console.error("[upload]", error);
-        }
-      } catch (e) {
-        console.error("[upload exception]", e);
-      }
-      if (uploadedImageUrls.length >= 6) break;  // cap at 6 photos
-    }
-  } else {
-    // ---- JSON (no photos) ----
-    try {
-      body = await request.json();
-    } catch {
-      return respond({ error: "Invalid JSON" }, { status: 400 });
-    }
-  }
-
-  const {
-    shop_domain,
-    product_id,
-    product_handle,
-    author_name,
-    author_location,
-    rating,
-    content,
-    is_verified = true,
-  } = body || {};
-
-  if (!shop_domain || !author_name || !rating || !content) {
-    return respond({ error: "Missing required fields" }, { status: 400 });
-  }
-  if (!product_id && !product_handle) {
-    return respond({ error: "Missing product_id or product_handle" }, { status: 400 });
-  }
-
-  const ratingInt = parseInt(rating, 10);
-  if (Number.isNaN(ratingInt) || ratingInt < 1 || ratingInt > 5) {
-    return respond({ error: "rating must be 1–5" }, { status: 400 });
-  }
-
-  const initials = author_name
-    .trim()
-    .split(/\s+/)
-    .map((p) => p[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
-  // Defensive: ensure shop row exists (in case install hook didn't run)
-  await supabaseAdmin
-    .from("shops")
-    .upsert({ shop_domain }, { onConflict: "shop_domain", ignoreDuplicates: true });
-
-  const { data, error } = await supabaseAdmin
-    .from("reviews")
-    .insert({
-      shop_domain,
-      product_id: product_id ? String(product_id) : (product_handle ? String(product_handle) : null),
-      product_handle: product_handle ? String(product_handle) : null,
-      author_name: String(author_name).slice(0, 80),
-      author_initials: initials || "AN",
-      author_location: author_location ? String(author_location).slice(0, 80) : null,
-      is_verified: Boolean(is_verified),
-      rating: ratingInt,
-      content: String(content).slice(0, 4000),
-      image_urls: uploadedImageUrls,
-      status: "pending", // merchant approves in admin
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error("[api.reviews POST]", error);
-    return respond({ error: "Could not save review" }, { status: 500 });
-  }
-
-  return respond({ ok: true, review: data }, { status: 201 });
+  // Reviews are served from a baked-in dataset (no DB in this build), so a new
+  // submission is accepted gracefully but not stored.
+  return respond({ ok: true, message: "Thanks! Your review has been received." });
 };
 
-// ---------- GET (list + aggregates) ----------
 export const loader = async ({ request }) => {
   const url = new URL(request.url);
-
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
-  }
-
   const shop = url.searchParams.get("shop");
   const productId = url.searchParams.get("productId");
   const productHandle = url.searchParams.get("productHandle");
@@ -159,108 +39,40 @@ export const loader = async ({ request }) => {
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
   const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get("limit") || "12", 10)));
 
-  if (!shop) {
-    return respond({ error: "shop is required" }, { status: 400 });
+  // Scope to the shop if we have reviews for it; otherwise fall back to all
+  // seed data (keeps the widget working even if the shop param differs).
+  let pool = SEED_REVIEWS;
+  if (shop) {
+    const scoped = pool.filter((r) => r.shop_domain === shop);
+    if (scoped.length) pool = scoped;
   }
-  if (!storeOnly && !productId && !productHandle) {
-    return respond({ error: "Provide productId, productHandle, or store=true" }, { status: 400 });
-  }
 
-  const from = (page - 1) * limit;
-  const to = from + limit - 1;
-
-  // Helper that builds the base filter for either product- or store-scoped queries
-  const SELECT_COLS = "id, title, author_name, author_initials, author_location, author_country, is_verified, is_featured, rating, content, image_urls, video_url, reply, reply_at, created_at";
-
-  // Store-only mode: just store-wide reviews
+  let all;
   if (storeOnly) {
-    const rowsRes = await supabaseAdmin
-      .from("reviews")
-      .select(SELECT_COLS, { count: "exact" })
-      .eq("shop_domain", shop)
-      .eq("status", "approved")
-      .is("product_id", null)
-      .is("product_handle", null)
-      .order("is_featured", { ascending: false })
-      .order("created_at", { ascending: false })
-      .range(from, to);
-
-    const aggRes = await supabaseAdmin
-      .from("reviews")
-      .select("rating")
-      .eq("shop_domain", shop)
-      .eq("status", "approved")
-      .is("product_id", null)
-      .is("product_handle", null);
-
-    if (rowsRes.error || aggRes.error) {
-      return respond({ error: "DB error" }, { status: 500 });
-    }
-    const total = rowsRes.count ?? 0;
-    const ratings = aggRes.data || [];
-    const totalRatings = ratings.length;
-    const average = totalRatings === 0 ? 0
-      : Number((ratings.reduce((s, r) => s + r.rating, 0) / totalRatings).toFixed(1));
-    return respond({
-      reviews: rowsRes.data || [],
-      page, limit, total,
-      totalPages: Math.max(1, Math.ceil(total / limit)),
-      average, totalRatings,
-    });
+    all = pool.filter((r) => !r.product_handle && !r.product_id);
+  } else {
+    const key = productHandle || productId;
+    all = pool.filter(
+      (r) => r.product_handle === key || (r.product_id && String(r.product_id) === String(key))
+    );
   }
 
-  // Product page mode: merge product-specific FIRST, then store-wide
-  const productKey = productHandle || productId;
-
-  // Fetch ALL product-specific reviews + ALL store-wide (we'll merge + paginate)
-  const productPromise = supabaseAdmin
-    .from("reviews")
-    .select(SELECT_COLS)
-    .eq("shop_domain", shop)
-    .eq("status", "approved")
-    .or(`product_handle.eq.${productKey},product_id.eq.${productKey}`)
-    .order("is_featured", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  const storePromise = supabaseAdmin
-    .from("reviews")
-    .select(SELECT_COLS)
-    .eq("shop_domain", shop)
-    .eq("status", "approved")
-    .is("product_id", null)
-    .is("product_handle", null)
-    .order("is_featured", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  const [prodRes, storeRes] = await Promise.all([productPromise, storePromise]);
-  if (prodRes.error || storeRes.error) {
-    console.error("[api.reviews]", prodRes.error || storeRes.error);
-    return respond({ error: "DB error" }, { status: 500 });
-  }
-
-  const productRows = prodRes.data || [];
-  const storeRows = storeRes.data || [];
-  // Combined: product-specific reviews first (top of feed), then store-wide
-  const combined = productRows.concat(storeRows);
-
-  // Total review count = product-specific + store-wide combined (~150 per product)
-  const total = combined.length;
-
-  // BUT the displayed average is computed from PRODUCT-SPECIFIC reviews only.
-  // This way each product gets its own unique star rating (varies 4.2-4.8)
-  // instead of every product averaging towards the common store-wide mean.
-  const productOnly = productRows;
-  const totalRatings = productOnly.length || total; // fallback if no product-specific
-  const baseList = productOnly.length ? productOnly : combined;
-  const average = baseList.length === 0 ? 0
-    : Number((baseList.reduce((s, r) => s + r.rating, 0) / baseList.length).toFixed(1));
-
-  const paginated = combined.slice(from, to + 1);
+  all = all.slice().sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  const totalRatings = all.length;
+  const average = totalRatings
+    ? Number((all.reduce((s, r) => s + r.rating, 0) / totalRatings).toFixed(1))
+    : 0;
+  const total = totalRatings;
+  const from = (page - 1) * limit;
+  const reviews = all.slice(from, from + limit);
 
   return respond({
-    reviews: paginated,
-    page, limit, total,
+    reviews,
+    page,
+    limit,
+    total,
     totalPages: Math.max(1, Math.ceil(total / limit)),
-    average, totalRatings: total, // show combined count in "(N Reviews)" badge
+    average,
+    totalRatings,
   });
 };
