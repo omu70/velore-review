@@ -19,12 +19,8 @@ function getPassword() {
   return process.env.ADMIN_PASSWORD || "123456";
 }
 
-function isAuthed(request) {
-  const pw = getPassword();
-  if (!pw) return false;
-  const cookie = request.headers.get("Cookie") || "";
-  const m = cookie.match(/(?:^|;\s*)evo_admin=([^;]+)/);
-  return Boolean(m && decodeURIComponent(m[1]) === pw);
+function isAuthed() {
+  return true; // Open admin — password gate removed.
 }
 
 function initials(name) {
@@ -64,11 +60,6 @@ function parseCSV(text) {
 }
 
 export const loader = async ({ request }) => {
-  if (!getPassword()) {
-    return json({ authed: false, noPassword: true });
-  }
-  if (!isAuthed(request)) return json({ authed: false });
-
   const url = new URL(request.url);
   const shop = url.searchParams.get("shop") || DEFAULT_SHOP;
   const { data, error } = await supabaseAdmin
@@ -225,7 +216,7 @@ export default function Admin() {
           <h1 style={{ fontSize: 22, margin: 0 }}>Velore Reviews</h1>
           <div style={{ color: "#6b7280", fontSize: 13 }}>{shop} · {reviews.length} reviews</div>
         </div>
-        <Form method="post"><input type="hidden" name="intent" value="logout" /><button style={S.btnLight}>Log out</button></Form>
+        <a href="https://velorliving.com" target="_blank" rel="noreferrer" style={{ ...S.btnLight, textDecoration: "none", color: "#111827" }}>View store ↗</a>
       </div>
 
       <Form method="get" style={{ ...S.card, display: "flex", gap: 10, alignItems: "end" }}>
