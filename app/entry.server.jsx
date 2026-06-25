@@ -1,6 +1,5 @@
 // =============================================================
-// Remix server entry — also injects Shopify's embedded-app
-// response headers (CSP frame-ancestors) so the admin iframe loads.
+// Remix server entry (standard — no Shopify dependencies)
 // File: /app/entry.server.jsx
 // =============================================================
 import { PassThrough } from "stream";
@@ -8,7 +7,6 @@ import { renderToPipeableStream } from "react-dom/server";
 import { RemixServer } from "@remix-run/react";
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { isbot } from "isbot";
-import { addDocumentResponseHeaders } from "./shopify.server";
 
 export const streamTimeout = 5000;
 
@@ -18,7 +16,6 @@ export default async function handleRequest(
   responseHeaders,
   remixContext
 ) {
-  addDocumentResponseHeaders(request, responseHeaders);
   const userAgent = request.headers.get("user-agent");
   const callbackName = isbot(userAgent ?? "") ? "onAllReady" : "onShellReady";
 
@@ -31,10 +28,7 @@ export default async function handleRequest(
           const stream = createReadableStreamFromReadable(body);
           responseHeaders.set("Content-Type", "text/html");
           resolve(
-            new Response(stream, {
-              headers: responseHeaders,
-              status: responseStatusCode,
-            })
+            new Response(stream, { headers: responseHeaders, status: responseStatusCode })
           );
           pipe(body);
         },

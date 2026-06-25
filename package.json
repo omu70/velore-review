@@ -4,23 +4,15 @@
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
-    "dev": "npx shopify app dev",
-    "config:link": "npx shopify app config link",
-    "config:use": "npx shopify app config use",
-    "deploy": "npx shopify app deploy",
-    "generate": "npx shopify app generate",
+    "dev": "vite dev",
     "start": "remix-serve ./build/server/index.js",
-    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
-    "shopify": "npx shopify"
+    "config:link": "npx shopify app config link",
+    "deploy": "npx shopify app deploy"
   },
   "dependencies": {
     "@remix-run/node": "^2.13.1",
     "@remix-run/react": "^2.13.1",
     "@remix-run/serve": "^2.13.1",
-    "@shopify/app-bridge-react": "^4.1.6",
-    "@shopify/polaris": "^13.9.0",
-    "@shopify/shopify-api": "^11.6.0",
-    "@shopify/shopify-app-remix": "^3.4.0",
     "@supabase/supabase-js": "^2.45.0",
     "@vercel/remix": "^2.13.1",
     "isbot": "^5.1.0",
