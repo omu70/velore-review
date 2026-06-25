@@ -11,7 +11,7 @@ import { useLoaderData, useActionData, Form, useNavigation } from "@remix-run/re
 import { supabaseAdmin } from "../utils/supabase.server";
 
 const COOKIE_NAME = "evo_admin";
-const DEFAULT_SHOP = "velor-living.myshopify.com";
+const DEFAULT_SHOP = "jifhga-rm.myshopify.com";
 
 function getPassword() {
   // Defaults to "123456". To make it secure, set ADMIN_PASSWORD in Vercel
